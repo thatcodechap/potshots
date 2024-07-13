@@ -1,0 +1,222 @@
+openapi: 3.1.0
+info:
+ title: Potshots
+ description: API description for a personal project called potshots.
+ version: 1.0.0
+paths:
+ /signup:
+  post:
+   summary: Craete a new account.
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        email:
+         type: string
+        pin:
+         type: integer
+   responses:
+    "200":
+     $ref: "#/components/responses/status"
+ /verify:
+  post:
+   summary: Verify email using otp.
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        email:
+         type: string
+        otp:
+         type: integer
+   responses:
+    "200":
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         token:
+          type: string
+          desciption: JWT token for the user.
+ /login:
+  post:
+   summary: Login to existing account.
+   requestBody:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        email:
+         type: string
+        pin:
+         type: integer
+   responses:
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        token:
+         type: string
+ /pot:
+  get:
+   summary: Fetch a single pot or all the pots.
+   parameters:
+   - name: id
+     in: query
+   responses:
+    "200":
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         pots:
+          type: array
+          items:
+           $ref: "#/components/schemas/pot"
+  post:
+   summary: Create a new pot.
+   requestBody:
+    required: true
+    content:
+     application/json:
+      schema:
+       $ref: "#/components/schemas/pot"
+   responses:
+    "200":
+     content:
+      application/json:
+       schema:
+        $ref: "#/components/schemas/pot"
+  put:
+   summary: Modify a pot.
+   parameters:
+   - name: id
+     in: query
+     required: true
+   requestBody:
+    required: true
+    content:
+     application/json:
+      schema:
+       $ref: "#/components/schemas/pot"
+   responses:
+    "200":
+      $ref: "#/components/responses/status"
+  delete:
+   summary: Delete a pot.
+   parameters:
+   - name: id
+     in: query
+     required: true
+   responses:
+    "200":
+     $ref: "#/components/responses/status"
+ /pot/lock:
+  post:
+   summary: Lock the pot from withdrawal.
+   responses:
+    "200":
+     $ref: "#/components/responses/status"
+ /transaction:
+  get:
+   summary: Get detail of single transaction or all transactions details.
+   parameters:
+   - name: id
+     in: query
+   responses:
+    "200":
+     content:
+      application/json:
+       schema:
+        type: object
+        properties:
+         transactions:
+          type: array
+          items:
+           $ref: "#/components/schemas/transaction"
+  post:
+   summary: Create a new transaction. Add or withdraw money.
+   requestBody:
+    required: true
+    content:
+     application/json:
+      schema:
+       type: object
+       properties:
+        type:
+         type: string
+         description: Add or withdraw
+        mode:
+         type: string
+         description: Single or distribute.
+        amount:
+         type: integer
+        pots:
+         type: array
+         items:
+          type: string
+          description: Pot id's
+   responses:
+    "200":
+     content:
+      application/json:
+       schema:
+        $ref: "#/components/schemas/transaction"      
+components:
+ schemas:
+  pot:
+   type: object
+   properties:
+    id:
+     type: string
+     description: Unique identifier for the pot.
+    goal:
+     type: string
+     description: Goal associated with the pot.
+    target:
+     type: int
+     description: Target amount for the pot.
+    currentAmount:
+     type: int
+     description: Total invested amount.
+    creationDate:
+     type: date
+     description: Date of pot creation.
+    targetDate:
+     type: date
+     description: Date of when the pot target has to be reached.
+  transaction:
+   type: object
+   properties:
+    id:
+     type: string
+     description: Unique identifier of the transaction.
+    type:
+     type: string
+     description: Eighter add or withdraw.
+    amount:
+     type: integer
+    date:
+     type: date
+ responses:
+  status:
+   description: Operation status.
+   content:
+    application/json:
+     schema:
+      type: object
+      properties:
+       status:
+        type: string
+        description: success or error.
+       code:
+        type: string
+        description: Error code.
